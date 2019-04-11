@@ -2,15 +2,10 @@
 
 namespace Mnvx\Lowrapper;
 
-use Psr\Log\LoggerInterface;
-use Psr\Log\LoggerAwareTrait;
-use Psr\Log\NullLogger;
 use Symfony\Component\Process\Process;
-
+use Illuminate\Support\Facades\Log;
 class Converter implements ConverterInterface
 {
-    use LoggerAwareTrait;
-
     const BINARY_DEFAULT = 'libreoffice';
 
     /**
@@ -56,20 +51,14 @@ class Converter implements ConverterInterface
      * @param string $binaryPath
      * @param string $tempDir
      * @param int $timeout
-     * @param LoggerInterface|null $logger
      * @param string $tempPrefix
      */
     public function __construct(
         /*string*/ $binaryPath = self::BINARY_DEFAULT,
         /*string*/ $tempDir = null,
         /*int*/ $timeout = null,
-        LoggerInterface $logger = null,
         /*string*/ $tempPrefix = 'lowrapper_'
     ) {
-        if (!$logger) {
-            $logger = new NullLogger();
-        }
-        $this->setLogger($logger);
         $this->binaryPath = $binaryPath;
 
         $this->tempDir = $tempDir ?: sys_get_temp_dir();
@@ -114,15 +103,15 @@ class Converter implements ConverterInterface
             $process->setTimeout($this->timeout);
         }
 
-        $this->logger->info(sprintf('Start: %s', $command));
+        Log::info(sprintf('Start: %s', $command));
 
         $self = $this;
         $resultCode = $process->run(function ($type, $buffer) use ($self) {
             if (Process::ERR === $type) {
-                $self->logger->warning($buffer);
+                Log::warning($buffer);
             }
             else {
-                $self->logger->info($buffer);
+                Log::info($buffer);
             }
         });
 
@@ -130,11 +119,11 @@ class Converter implements ConverterInterface
         $this->deleteInput($parameters, $inputFile);
 
         if ($resultCode != 0) {
-            $this->logger->error(sprintf('Failed with result code %d: %s', $resultCode, $command));
+            Log::error(sprintf('Failed with result code %d: %s', $resultCode, $command));
             throw new LowrapperException('Error on converting data with LibreOffice: ' . $resultCode, $resultCode);
         }
         else {
-            $this->logger->info(sprintf('Finished: %s', $command));
+            Log::info(sprintf('Finished: %s', $command));
         }
 
         return $result;
@@ -189,7 +178,7 @@ class Converter implements ConverterInterface
     protected function createOutput(/*string*/ $inputFile, /*string*/ $outputFile = null)
     {
         if (!file_exists($inputFile)) {
-            $this->logger->error('LibreOffice did not convert, check its working capacity');
+            Log::error('LibreOffice did not convert, check its working capacity');
             throw new LowrapperException('LibreOffice did not convert, check its working capacity');
         }
         if ($outputFile) {
