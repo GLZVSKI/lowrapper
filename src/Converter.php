@@ -103,7 +103,7 @@ class Converter implements ConverterInterface
             $process->setTimeout($this->timeout);
         }
 
-        Log::info(sprintf('Start: %s', $command));
+        //Log::info(sprintf('Start: %s', $command));
 
         $self = $this;
         $resultCode = $process->run(function ($type, $buffer) use ($self) {
@@ -111,7 +111,7 @@ class Converter implements ConverterInterface
                 Log::warning($buffer);
             }
             else {
-                Log::info($buffer);
+                //Log::info($buffer);
             }
         });
 
@@ -123,7 +123,7 @@ class Converter implements ConverterInterface
             throw new LowrapperException('Error on converting data with LibreOffice: ' . $resultCode, $resultCode);
         }
         else {
-            Log::info(sprintf('Finished: %s', $command));
+            //Log::info(sprintf('Finished: %s', $command));
         }
 
         return $result;
