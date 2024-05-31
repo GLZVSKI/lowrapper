@@ -34,7 +34,7 @@ More [examples](/examples)
 
 ## Requirements
 
-- PHP 5.5+
+- PHP 8.2+
 - libreoffice-core
 
 ## Installation
